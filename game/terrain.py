@@ -2,27 +2,28 @@ import pygame
 import random
 
 class Terrain:
-    def __init__(self, window_width, window_height):
+    def __init__(self, window_width, window_height, max_slope=0.35, segment_length=40):
         self.x = 0
-        self.y = 400
+        self.y = 450
         self.width = window_width
         self.height = window_height - self.y
+        self.window_height = window_height 
 
         # Generate terrain
         self.points = []
         last_point = (0, self.y)
-        for i in range(20, self.width, 20):
+        for i in range(segment_length, self.width, segment_length):
             x = i
-            if random.randint(0, 1):
-                y = last_point[1] - random.randint(0, 20)
+            if random.random() < 0.5:
+                y = max(last_point[1] - random.randint(0, int(max_slope * segment_length)), self.y - self.height)
             else:
-                y = last_point[1] + random.randint(0, 20)
+                y = min(last_point[1] + random.randint(0, int(max_slope * segment_length)), self.y)
             self.points.append((x, y))
             last_point = (x, y)
         self.points.append((self.width, self.y))
 
     def draw(self, game_display, green):
-        pygame.draw.polygon(game_display, green, self.points)
+        pygame.draw.polygon(game_display, green, self.points + [(self.width, self.window_height), (0, self.window_height)]) 
 
     def get_y(self, x):
         for i in range(len(self.points) - 1):
