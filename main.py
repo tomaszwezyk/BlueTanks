@@ -1,7 +1,7 @@
 import pygame
-import random
 
 from game.tank import Tank
+from game.terrain import Terrain
 
 # Initialize Pygame
 pygame.init()
@@ -25,44 +25,11 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 green = (0, 255, 0)
 
-# Define terrain class
-class Terrain:
-    def __init__(self):
-        self.x = 0
-        self.y = 400
-        self.width = window_width
-        self.height = window_height - self.y
-
-        # Generate terrain
-        self.points = []
-        last_point = (0, self.y)
-        for i in range(20, self.width, 20):
-            x = i
-            if random.randint(0, 1):
-                y = last_point[1] - random.randint(0, 20)
-            else:
-                y = last_point[1] + random.randint(0, 20)
-            self.points.append((x, y))
-            last_point = (x, y)
-        self.points.append((self.width, self.y))
-
-    def draw(self):
-        pygame.draw.polygon(game_display, green, self.points)
-
-    def get_y(self, x):
-        for i in range(len(self.points) - 1):
-            if self.points[i][0] <= x <= self.points[i+1][0]:
-                x1, y1 = self.points[i]
-                x2, y2 = self.points[i+1]
-                slope = (y2 - y1) / (x2 - x1)
-                y_intercept = y1 - slope * x1
-                return slope * x + y_intercept
-
-        return self.points[-1][1]
+# Define terrain clas
 
 # Create objects
 tank = Tank(50, 350)
-terrain = Terrain()
+terrain = Terrain(window_width, window_height) 
 
 # Game loop
 game_exit = False
@@ -81,7 +48,7 @@ while not game_exit:
 
     # Update screen
     game_display.fill(black)
-    terrain.draw()
+    terrain.draw(game_display, green)
     tank.update(terrain)
     tank.draw(game_display)
     pygame.display.update()
