@@ -1,6 +1,6 @@
 import pygame
 import math
-from models.commons import *
+from game.models.commons import *
 
 class Tank:
     def __init__(self, x, y, color):

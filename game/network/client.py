@@ -7,9 +7,9 @@ import random
 import pygame
 import pickle
 import sys
-from models.commons import *
-from models.game import Game
-from models.tank import Tank
+from game.models.commons import *
+from game.models.game import Game
+from game.models.tank import Tank
 
 # pygame.init()
 #

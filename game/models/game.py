@@ -1,13 +1,13 @@
 import pickle
 
 import pygame
-from models.commons import *
+from game.models.commons import *
 import socket
 import sys
 import random
 
-from models.bullet import Bullet
-from models.tank import Tank
+from game.models.bullet import Bullet
+from game.models.tank import Tank
 
 
 
