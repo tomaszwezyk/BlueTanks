@@ -39,11 +39,16 @@ class Tank:
         body_y = tank_y - body_height
         pygame.draw.rect(game_display, dark_gray, (body_x, body_y, body_width, body_height))
 
-        turret_x = tank_x + body_width / 2 - turret_width / 2
+        if self.direction == 1: # facing right
+            turret_x = tank_x + body_width / 2 - turret_width / 2
+            gun_x = tank_x + body_width / 2 - wheel_size
+        elif self.direction == -1: # facing left
+            turret_x = tank_x + body_width / 2
+            gun_x = tank_x + body_width / 2 - wheel_size * 4
+
         turret_y = tank_y - body_height - turret_height
         pygame.draw.rect(game_display, gray, (turret_x, turret_y, turret_width, turret_height))
 
-        gun_x = tank_x + body_width / 2 - wheel_size
         gun_y = tank_y - body_height - turret_height - gun_height
         gun_width = 6 * wheel_size
         gun_rect = pygame.Rect(gun_x, gun_y, gun_width, gun_height)
