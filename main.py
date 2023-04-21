@@ -1,7 +1,6 @@
 import pygame
+from game.menu import Menu
 
-from game.tank import Tank
-from game.terrain import Terrain
 from game.game import Game
 
 # Initialize Pygame
@@ -26,11 +25,11 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 green = (0, 255, 0)
 
-game = Game(pygame)
+menu = Menu(pygame)
+menu.run()
 
-# Run the game
-game.run()
 
 # Quit Pygame
 pygame.quit()
+
 quit()
