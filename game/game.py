@@ -1,6 +1,7 @@
 import os
 import pygame
 import socket
+import threading
 import pickle
 from game.tank import Tank
 from game.terrain import Terrain
@@ -35,6 +36,21 @@ class Game:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.server_ip, 1234))
 
+        # Start thread to listen for updates about other tanks
+        self.tank_updates_thread = threading.Thread(target=self.receive_tank_updates)
+        self.tank_updates_thread.start()
+
+    def receive_tank_updates(self):
+        while True:
+            data = self.client_socket.recv(1024)
+            if not data:
+                break
+            messages = data.decode().split('\n')
+            for message in messages:
+                if message.startswith("UPDATE"):
+                    _, tank_id, x, y = message.split()
+                    # TODO: Update tank position based on received data
+
     def handle_events(self):
         for event in self.pygame_instance.event.get():
             if event.type == self.pygame_instance.QUIT:
@@ -46,14 +62,23 @@ class Game:
                     self.bullets.append(bullet)
         return False
 
+    def send_position_update(self, tank):
+        message = f"UPDATE {tank.x} {tank.y}\n"
+        print("message:"+message)
+        if self.join_game:
+            self.client_socket.sendall(message.encode())
+
     def update(self):
         keys = self.pygame_instance.key.get_pressed()
         if keys[self.pygame_instance.K_LEFT]:
             self.player_tank.move_left()
+            self.send_position_update(self.player_tank)
         if keys[self.pygame_instance.K_RIGHT]:
             self.player_tank.move_right()
+            self.send_position_update(self.player_tank)
         if keys[self.pygame_instance.K_SPACE]:
             self.player_tank.jump()
+            self.send_position_update(self.player_tank)
         for tank in self.tanks:
             tank.update(self.terrain)
 
@@ -67,16 +92,9 @@ class Game:
                     break
             if not bullet_hit_tank and not bullet.update(self.terrain):
                 new_bullets.append(bullet)
-            else:
-                if self.join_game:
-                    data = {
-                        "bullet_x": bullet.x,
-                        "bullet_y": bullet.y,
-                        "bullet_direction": bullet.direction,
-                        "bullet_owner_id": bullet.owner_tank.id
-                    }
-                    self.client_socket.send(pickle.dumps(data))
+
         self.bullets = new_bullets
+
 
     def draw(self):
         self.game_display.blit(background_image, (0, 0))
@@ -95,7 +113,7 @@ class Game:
             self.draw()
             self.clock.tick(60)  # Limit frame rate to 60 FPS
 
-            if self.join_game:
-                self.client_socket.close()
+        if self.join_game:
+            self.client_socket.close()
 
         self.pygame_instance.quit()
