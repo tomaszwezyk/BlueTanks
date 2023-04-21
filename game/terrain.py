@@ -11,7 +11,11 @@ class Terrain:
 
         # Generate terrain
         self.points = []
-        last_point = (0, self.y)
+        initial_y = random.randint(self.y - self.height, self.y)  # Random initial y value
+        last_point = (0, initial_y)  # Update the last_point with the random initial y value
+
+        self.points.append(last_point)  # Add the leftmost point to the list
+
         for i in range(segment_length, self.width, segment_length):
             x = i
             if random.random() < 0.5:
