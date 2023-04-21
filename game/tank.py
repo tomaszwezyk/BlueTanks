@@ -8,6 +8,7 @@ class Tank:
         self.height = 30
         self.speed = 0.1  # Reduce tank speed to 1/10th of original
         self.gravity = 0.5
+        self.direction = 1  # Initialize direction to 1 (right)        
 
     def draw(self, game_display):
         pygame.draw.rect(game_display, (255, 255, 255), [self.x, self.y, self.width, self.height])
@@ -26,9 +27,11 @@ class Tank:
 
     def move_left(self):
         self.x -= 1
+        self.direction = -1
 
     def move_right(self):
         self.x += 1
+        self.direction = 1
 
     def jump(self):
         self.speed = -10

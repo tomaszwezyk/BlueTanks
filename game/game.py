@@ -32,9 +32,10 @@ class Game:
                     game_exit = True
                 if event.type == self.pygame_instance.KEYDOWN:
                     if event.key == self.pygame_instance.K_LCTRL:
-                        bullet = Bullet(self.tank.x + self.tank.width/2, self.tank.y + self.tank.height/2, 45)
+                        # Adjust angle based on tank's direction (45 degrees for right, 135 degrees for left)
+                        angle = 45 if self.tank.direction == 1 else 135
+                        bullet = Bullet(self.tank.x + self.tank.width/2, self.tank.y + self.tank.height/2, angle)
                         self.bullets.append(bullet)
-
             # Update screen
             self.game_display.fill((0, 0, 0))
             self.terrain.draw(self.game_display, (0, 255, 0))
