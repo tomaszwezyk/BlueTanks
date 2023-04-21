@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class Tank:
     def __init__(self, x, y):
