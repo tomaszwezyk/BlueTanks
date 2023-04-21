@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class Tank:
     def __init__(self, x, y):
@@ -9,6 +10,13 @@ class Tank:
         self.speed = 0.1  # Reduce tank speed to 1/10th of original
         self.gravity = 0.5
         self.direction = 1  # Initialize direction to 1 (right)        
+
+        self.cannon_hotness = 0
+        self.cannon_jammed = False
+        self.jam_time = None
+        self.jam_duration = 3  # Jammed for 3 seconds
+        self.max_hotness = 100  # Maximum hotness before the cannon gets jammed
+
 
     def draw(self, game_display):
         # Tank dimensions
@@ -54,8 +62,26 @@ class Tank:
         gun_rect = pygame.Rect(gun_x, gun_y, gun_width, gun_height)
         pygame.draw.rect(game_display, gray, gun_rect)
 
+    def shoot(self):
+        if not self.cannon_jammed:
+            self.cannon_hotness += 20  # Increase hotness by 20 for each shot
+            if self.cannon_hotness >= self.max_hotness:
+                self.cannon_jammed = True
+                self.jam_time = time.time()
+            return True
+        return False
+
+    def update_cannon_hotness(self):
+        if self.cannon_jammed:
+            if time.time() - self.jam_time >= self.jam_duration:
+                self.cannon_jammed = False
+                self.cannon_hotness = self.max_hotness
+        else:
+            self.cannon_hotness = max(0, self.cannon_hotness - 0.5)  # Cool down the cannon by 0.5 units
 
     def update(self, terrain):
+        self.update_cannon_hotness()
+        
         # Apply gravity
         self.speed += self.gravity
         self.y += self.speed
