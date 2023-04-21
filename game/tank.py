@@ -1,5 +1,6 @@
 import pygame
 import time
+import uuid
 
 class Tank:
     def __init__(self, x, y):
@@ -11,6 +12,8 @@ class Tank:
         self.gravity = 0.5
         self.direction = 1  # Initialize direction to 1 (right)     
 
+        self.uuid = uuid.uuid4()
+        
         self.cannon_hotness = 0
         self.cannon_jammed = False
         self.jam_time = None
