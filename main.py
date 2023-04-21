@@ -1,8 +1,13 @@
 import pygame
 import random
 
+from game.tank import Tank
+
 # Initialize Pygame
 pygame.init()
+
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 24)  # Choose a font and size
 
 # Set up the game window
 window_width = 800
@@ -10,44 +15,15 @@ window_height = 600
 game_display = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Tank Game")
 
+clock = pygame.time.Clock()
+clock.tick(60)  # Limit frame rate to 60 FPS
+font = pygame.font.Font(None, 24)  # Choose a font and size
+
+
 # Define colors
 white = (255, 255, 255)
 black = (0, 0, 0)
 green = (0, 255, 0)
-
-# Define tank class
-class Tank:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.width = 50
-        self.height = 30
-        self.speed = 0.1  # Reduce tank speed to 1/10th of original
-        self.gravity = 0.5
-
-    def draw(self):
-        pygame.draw.rect(game_display, white, [self.x, self.y, self.width, self.height])
-
-    def update(self, terrain):
-        # Apply gravity
-        self.speed += self.gravity
-        self.y += self.speed
-
-        # Check for collision with terrain
-        tank_bottom = self.y + self.height
-        terrain_bottom = terrain.get_y(self.x + self.width/2)
-        if tank_bottom > terrain_bottom:
-            self.speed = 0
-            self.y = terrain_bottom - self.height
-
-    def move_left(self):
-        self.x -= 1
-
-    def move_right(self):
-        self.x += 1
-
-    def jump(self):
-        self.speed = -10
 
 # Define terrain class
 class Terrain:
@@ -107,8 +83,9 @@ while not game_exit:
     game_display.fill(black)
     terrain.draw()
     tank.update(terrain)
-    tank.draw()
+    tank.draw(game_display)
     pygame.display.update()
+    clock.tick(60)  # Limit frame rate to 60 FPS
 
 # Quit Pygame
 pygame.quit()
