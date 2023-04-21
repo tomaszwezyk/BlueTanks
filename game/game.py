@@ -1,6 +1,7 @@
 import os
 import pygame
-
+import socket
+import pickle
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
@@ -8,7 +9,7 @@ from game.bullet import Bullet
 background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg"))
 
 class Game:
-    def __init__(self, pygame_instance, width=800, height=600):
+    def __init__(self, pygame_instance, width=800, height=600, join_game=False, server_ip=""):
         self.pygame_instance = pygame_instance
         self.terrain = Terrain(width, height)
         self.width = width
@@ -23,6 +24,16 @@ class Game:
             Tank(500, 350),
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
+        self.join_game = join_game
+        self.server_ip = server_ip
+        self.client_socket = None
+
+        if self.join_game:
+            self.connect_to_server()
+
+    def connect_to_server(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.server_ip, 1234))
 
     def handle_events(self):
         for event in self.pygame_instance.event.get():
@@ -56,6 +67,15 @@ class Game:
                     break
             if not bullet_hit_tank and not bullet.update(self.terrain):
                 new_bullets.append(bullet)
+            else:
+                if self.join_game:
+                    data = {
+                        "bullet_x": bullet.x,
+                        "bullet_y": bullet.y,
+                        "bullet_direction": bullet.direction,
+                        "bullet_owner_id": bullet.owner_tank.id
+                    }
+                    self.client_socket.send(pickle.dumps(data))
         self.bullets = new_bullets
 
     def draw(self):
@@ -74,5 +94,8 @@ class Game:
             self.update()
             self.draw()
             self.clock.tick(60)  # Limit frame rate to 60 FPS
+
+            if self.join_game:
+                self.client_socket.close()
 
         self.pygame_instance.quit()
