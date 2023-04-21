@@ -4,7 +4,7 @@ class Tank:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.width = 50
+        self.width = 100
         self.height = 30
         self.speed = 0.1  # Reduce tank speed to 1/10th of original
         self.gravity = 0.5
