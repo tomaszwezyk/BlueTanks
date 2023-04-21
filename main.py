@@ -1,90 +1,40 @@
 import pygame
-import random
-import socket
 import sys
 
-from game.models.commons import *
+# Initialize Pygame
+pygame.init()
 
-from game.models.game import Game
-from game.models.tank import Tank
+# Set the screen size
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-from game.network.server import host_game
-from game.network.client import join_game
+# Set the game clock
+clock = pygame.time.Clock()
 
+# Define game variables
+# Add any game variables here, such as tank position, cannon angle, etc.
 
-def main():
-    game = Game()
-    game.is_host = True # or False for non-host players
-    tank_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    tank = Tank(SCREEN_WIDTH/2 - TANK_WIDTH/2, SCREEN_HEIGHT - TANK_HEIGHT - 10, tank_color)
-    game.add_tank(tank)
+# Define game functions
+# Add any game functions here, such as tank movement, cannon movement, shooting, terrain generation, etc.
 
-    # Connect to server or wait for clients to connect
-    if game.is_host:
-        host_game()
-    else:
-        join_game()
+# Game loop
+while True:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        # Add any other event handling code here, such as key presses
 
-    while True:
-        # Handle user input
-        left_pressed = False
-        right_pressed = False
-        up_pressed = False
-        down_pressed = False
-        space_pressed = False
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    left_pressed = True
-                elif event.key == pygame.K_RIGHT:
-                    right_pressed = True
-                elif event.key == pygame.K_UP:
-                    up_pressed = True
-                elif event.key == pygame.K_DOWN:
-                    down_pressed = True
-                elif event.key == pygame.K_SPACE:
-                    space_pressed = True
+    # Update game state
+    # Call any game functions here to update the game state
 
-        # Move tanks and update bullets
-        game.move_tanks(left_pressed, right_pressed, up_pressed, down_pressed, space_pressed)
-        game.update_bullets()
+    # Draw graphics
+    # Call any drawing functions here to draw the game objects on the screen
 
-        # Draw game
-        game.draw()
+    # Update the display
+    pygame.display.update()
 
-        # Limit frame rate
-        game.clock.tick(60)
-
-
-def main_menu():
-    pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Tanks Game - Main Menu")
-    font = pygame.font.Font(None, 50)
-    host_text = font.render("Host a game", True, BLACK)
-    host_rect = host_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
-    join_text = font.render("Join a game", True, BLACK)
-    join_rect = join_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/3 + 100))
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if host_rect.collidepoint(pygame.mouse.get_pos()):
-                    host_game()
-                elif join_rect.collidepoint(pygame.mouse.get_pos()):
-                    join_game()
-
-        screen.fill(WHITE)
-        screen.blit(host_text, host_rect)
-        screen.blit(join_text, join_rect)
-        pygame.display.flip()
-
-
-
-if __name__ == "__main__":
-    main_menu()
-
+    # Set the game clock tick rate
+    clock.tick(60)
