@@ -4,7 +4,7 @@ import pygame
 class Bullet:
     def __init__(self, angle, owner_tank):
         self.x = owner_tank.x + owner_tank.width / 2
-        self.y = owner_tank.y + owner_tank.height / 2
+        self.y = owner_tank.y - owner_tank.height
         self.angle = angle
         self.speed = 10
         self.gravity = 0.5

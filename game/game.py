@@ -57,9 +57,10 @@ class Game:
                 return True
             if event.type == self.pygame_instance.KEYDOWN:
                 if event.key == self.pygame_instance.K_LCTRL:
-                    angle = 45 if self.player_tank.direction == 1 else 135
-                    bullet = Bullet(angle, self.player_tank)
-                    self.bullets.append(bullet)
+                    if self.player_tank.shoot():
+                        angle = 45 if self.player_tank.direction == 1 else 135
+                        bullet = Bullet(angle, self.player_tank)
+                        self.bullets.append(bullet)
         return False
 
     def send_position_update(self, tank):
@@ -103,7 +104,35 @@ class Game:
             tank.draw(self.game_display)
         for bullet in self.bullets:
             bullet.draw(self.game_display)
+
+        self.draw_cannon_hotness()  # Add this line to draw the hotness bar
+
         self.pygame_instance.display.update()
+
+    def draw_cannon_hotness(self):
+        max_bar_width = 200
+        bar_height = 20
+        hotness_percentage = min(self.player_tank.cannon_hotness / self.player_tank.max_hotness, 1)
+        bar_width = int(max_bar_width * hotness_percentage)
+
+        # Draw the background of the hotness bar
+        background_color = (128, 128, 128)
+        pygame.draw.rect(self.game_display, background_color, (10, 10, max_bar_width, bar_height))
+
+        # Draw the hotness bar
+        bar_color = (255, 0, 0)
+        pygame.draw.rect(self.game_display, bar_color, (10, 10, bar_width, bar_height))
+
+        # Draw a border around the hotness bar
+        border_color = (0, 0, 0)
+        border_thickness = 2
+        pygame.draw.rect(self.game_display, border_color, (10, 10, max_bar_width, bar_height), border_thickness)
+
+        # Optionally, you can display the hotness value as text
+        font = pygame.font.Font(None, 24)
+        text_color = (0, 0, 0)
+        text = font.render(f"Hotness: {self.player_tank.cannon_hotness:.0f}/{self.player_tank.max_hotness}", True, text_color)
+        self.game_display.blit(text, (10 + max_bar_width + 10, 10))
 
     def run(self):
         game_exit = False
