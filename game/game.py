@@ -11,17 +11,17 @@ background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg")
 class Game:
     def __init__(self, pygame_instance, width=800, height=600, join_game=False, server_ip=""):
         self.pygame_instance = pygame_instance
-        self.terrain = Terrain(width, height)
+        self.terrain = Terrain(width * 20, height)
         self.width = width
         self.game_display = pygame_instance.display.set_mode((width, height))
         self.height = height
         self.clock = pygame_instance.time.Clock()
         self.bullets = []
         self.tanks = [
-            Tank(50, 350),
-            Tank(200, 350),
-            Tank(350, 350),
-            Tank(500, 350),
+            Tank(550, 350),
+            Tank(700, 350),
+            Tank(950, 350),
+            Tank(1000, 350),
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
         self.join_game = join_game
@@ -80,13 +80,20 @@ class Game:
         self.bullets = new_bullets
 
     def draw(self):
+        # Calculate the horizontal offset
+        offset_x = self.player_tank.x - self.width // 2
+        offset_y = 0  # For now, we keep the vertical offset as 0
+
+        # Clip the horizontal offset to the limits of the terrain
+        offset_x = max(min(offset_x, self.terrain.width - self.width), 0)
+
         self.game_display.blit(background_image, (0, 0))
-        self.terrain.draw(self.game_display, (0, 255, 0))
+        self.terrain.draw(self.game_display, (0, 255, 0), offset_x, offset_y)
         for tank in self.tanks:
-            tank.draw(self.game_display)
+            tank.draw(self.game_display, offset_x, offset_y)
         for bullet in self.bullets:
-            bullet.draw(self.game_display)
-        
+            bullet.draw(self.game_display, offset_x, offset_y)
+
         self.draw_cannon_hotness()  # Add this line to draw the hotness bar
 
         self.pygame_instance.display.update()

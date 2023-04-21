@@ -17,7 +17,7 @@ class Tank:
         self.jam_duration = 3  # Jammed for 3 seconds
         self.max_hotness = 100  # Maximum hotness before the cannon gets jammed		
 
-    def draw(self, game_display):
+    def draw(self, game_display, offset_x, offset_y):
         # Load tank image
         tank_img = pygame.image.load('assets/tank.gif')
 
@@ -27,7 +27,7 @@ class Tank:
 
         # Tank position
         tank_rect = tank_img.get_rect()
-        tank_rect.center = (self.x, self.y)
+        tank_rect.center = (self.x - offset_x, self.y - offset_y)
 
         # Flip tank image if facing left
         if self.direction == 1:
@@ -68,11 +68,11 @@ class Tank:
             self.y = terrain_bottom - self.height
 
     def move_left(self):
-        self.x -= 1
+        self.x -= 10
         self.direction = -1
 
     def move_right(self):
-        self.x += 1
+        self.x += 10
         self.direction = 1
 
     def jump(self):
