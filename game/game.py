@@ -1,6 +1,11 @@
+import os
+import pygame
+
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
+
+background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg")) 
 
 class Game:
     def __init__(self, pygame_instance, width=800, height=600):
@@ -37,7 +42,7 @@ class Game:
                         bullet = Bullet(self.tank.x + self.tank.width/2, self.tank.y + self.tank.height/2, angle)
                         self.bullets.append(bullet)
             # Update screen
-            self.game_display.fill((0, 0, 0))
+            self.game_display.blit(background_image, (0, 0))
             self.terrain.draw(self.game_display, (0, 255, 0))
             self.tank.update(self.terrain)
             self.tank.draw(self.game_display)
