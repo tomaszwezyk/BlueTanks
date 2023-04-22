@@ -7,6 +7,7 @@ import random
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
+from game.simple_ai import SimpleAI
 from game.blow import BlowEffect
 
 from pygame import mixer
@@ -30,12 +31,17 @@ class Game:
             Tank(950, 350),
             Tank(1000, 350),
         ]
-        self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
 
         mixer.init()
         self.blow_sound = mixer.Sound(os.path.join("assets", "blow.wav"))
 
+        self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
         self.player2_tank = self.tanks[1]  # Reference to the player2-controlled tank
+
+        self.ai_players = [
+            SimpleAI(self.tanks[2], self.player_tank, self.terrain, Bullet),
+            SimpleAI(self.tanks[3], self.player2_tank, self.terrain, Bullet)
+        ]
         self.join_game = join_game
         self.server_ip = server_ip
         self.client_socket = None
@@ -118,6 +124,11 @@ class Game:
                         }
                         self.client_socket.send(pickle.dumps(data))
         self.bullets = new_bullets
+
+        for ai_player in self.ai_players:
+            ai_bullet = ai_player.update()
+            if ai_bullet:
+                self.bullets.append(ai_bullet)
 
     def generate_screen_shake(self, duration, intensity):
         shake_points = []
