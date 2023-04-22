@@ -180,21 +180,21 @@ class Game:
 
         # Draw the background of the hotness bar
         background_color = (128, 128, 128)
-        pygame.draw.rect(self.game_display, background_color, (10, 10, max_bar_width, bar_height))
+        pygame.draw.rect(self.game_display, background_color, (position[0], position[1], max_bar_width, bar_height))
 
         # Draw the hotness bar
         bar_color = (255, 0, 0)
-        pygame.draw.rect(self.game_display, bar_color, (10, 10, bar_width, bar_height))
+        pygame.draw.rect(self.game_display, bar_color, (position[0], position[1], bar_width, bar_height))
 
         # Draw a border around the hotness bar
         border_color = (0, 0, 0)
         border_thickness = 2
-        pygame.draw.rect(self.game_display, border_color, (10, 10, max_bar_width, bar_height), border_thickness)
+        pygame.draw.rect(self.game_display, border_color, (position[0], position[1], max_bar_width, bar_height), border_thickness)
 
         # Optionally, you can display the hotness value as text
         font = pygame.font.Font(None, 24)
         text_color = (0, 0, 0)
-        text = font.render(f"Hotness: {self.player_tank.cannon_hotness:.0f}/{self.player_tank.max_hotness}", True, text_color)
+        text = font.render(f"Hotness: {player_tank.cannon_hotness:.0f}/{player_tank.max_hotness}", True, text_color)
         self.game_display.blit(text, (position[0] + max_bar_width + 10, position[1]))
 
     def run(self):
