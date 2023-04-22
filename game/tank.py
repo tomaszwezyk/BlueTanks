@@ -3,13 +3,14 @@ import time
 import uuid
 
 class Tank:
-    def __init__(self, x, y, ai=None):
+    def __init__(self, x, y, speed = 10, ai=None):
         # ... (rest of the constructor code)
         self.ai = ai
         self.x = x
         self.y = y
         self.width = 100
         self.height = 30
+        self.hspeed = speed
         self.speed = 0.1  # Reduce tank speed to 1/10th of original
         self.gravity = 0.5
         self.direction = 1  # Initialize direction to 1 (right)     
@@ -78,11 +79,11 @@ class Tank:
             self.y = terrain_bottom - self.height
 
     def move_left(self):
-        self.x -= 10
+        self.x -= self.hspeed
         self.direction = -1
 
     def move_right(self):
-        self.x += 10
+        self.x += self.hspeed
         self.direction = 1
 
     def jump(self):

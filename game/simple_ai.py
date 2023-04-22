@@ -8,10 +8,21 @@ class SimpleAI:
         self.bullet_class = bullet_class
 
     def update(self):
-        if self.tank.x < self.target_tank.x:
+        min_distance = 50
+        max_distance = 250
+        distance = random.randint(min_distance, max_distance)
+
+        if self.tank.x < self.target_tank.x - distance:
             self.tank.move_right()
-        elif self.tank.x > self.target_tank.x:
+        elif self.tank.x > self.target_tank.x + distance:
             self.tank.move_left()
+        else:
+            # Randomly decide whether to move right or left
+            if random.random() < 0.01:
+                if random.random() < 0.5:
+                    self.tank.move_right()
+                else:
+                    self.tank.move_left()
 
         if random.random() < 0.01:
             self.tank.jump()

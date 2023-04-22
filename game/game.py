@@ -27,8 +27,8 @@ class Game:
         self.blow_effects = []
         tank1 = Tank(550, 350)
         tank2 = Tank(700, 350)
-        tank3 = Tank(950, 350)
-        tank4 = Tank(1000, 350)
+        tank3 = Tank(950, 350, 5)
+        tank4 = Tank(1000, 350, 5)
 
         tank3.ai = SimpleAI(tank3, tank1, self.terrain, Bullet)
         tank4.ai = SimpleAI(tank4, tank2, self.terrain, Bullet)
