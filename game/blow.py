@@ -20,7 +20,7 @@ class BlowEffect:
             return True
         return False
 
-    def draw(self, game_display):
+    def draw(self, game_display, offset_x, offset_y):
         scale_factor = min(1, self.current_frame / (self.duration / 2))
         scaled_image_width = int(blow_image.get_width() * scale_factor)
         scaled_image_height = int(blow_image.get_height() * scale_factor)
@@ -32,4 +32,4 @@ class BlowEffect:
 
         draw_x = self.x + (blow_image.get_width() - scaled_image_width) / 2 + shake_x
         draw_y = self.y + (blow_image.get_height() - scaled_image_height) / 2 + shake_y
-        game_display.blit(scaled_image, (draw_x, draw_y))
+        game_display.blit(scaled_image, (draw_x - offset_x, draw_y - offset_y))

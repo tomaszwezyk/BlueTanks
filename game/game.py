@@ -80,7 +80,6 @@ class Game:
                     blow_effect_y = tank.y + tank.height / 2
                     blow_effect = BlowEffect(blow_effect_x, blow_effect_y)
                     self.blow_effects.append(blow_effect)
-                    if bullet_hit_tank:
                     self.screen_shake_points = self.generate_screen_shake(30, 5)  # 60 frames (1 second) duration, 5 pixels intensity
                 if self.join_game:
                         data = {
@@ -120,7 +119,7 @@ class Game:
         for bullet in self.bullets:
             bullet.draw(self.game_display, offset_x, offset_y)
         for blow_effect in self.blow_effects:
-            blow_effect.draw(self.game_display)
+            blow_effect.draw(self.game_display, offset_x, offset_y)
 
         self.draw_cannon_hotness()  # Add this line to draw the hotness bar
 
