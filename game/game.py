@@ -144,7 +144,7 @@ class Game:
             offset_y += shake_y
 
         drawing_area.blit(background_image, (0, 0))
-        self.terrain.draw(drawing_area, (0, 255, 0), offset_x, offset_y)
+        self.terrain.draw(drawing_area, (139, 69, 19), offset_x, offset_y)
         for tank in self.tanks:
             tank.draw(drawing_area, offset_x, offset_y)
         for bullet in self.bullets:
