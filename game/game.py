@@ -52,15 +52,15 @@ class Game:
             if event.type == self.pygame_instance.QUIT:
                 return True
             if event.type == self.pygame_instance.KEYDOWN:
-                # Player1 shoot with LCTRL
-                if event.key == self.pygame_instance.K_LCTRL:
+                # Player1 shoot with LCTRL or LSHIFT
+                if event.key == self.pygame_instance.K_LCTRL or event.key == self.pygame_instance.K_LSHIFT:
                     if self.player_tank.shoot():
                         angle = 45 if self.player_tank.direction == 1 else 135
                         bullet = Bullet(angle, self.player_tank)
                         self.bullets.append(bullet)
 
-                # Player2 shoot with RCTRL
-                if event.key == self.pygame_instance.K_RCTRL:
+                # Player2 shoot with RCTRL or RSHIFT
+                if event.key == self.pygame_instance.K_RCTRL or event.key == self.pygame_instance.K_RSHIFT:
                     if self.player2_tank.shoot():
                         angle = 45 if self.player2_tank.direction == 1 else 135
                         bullet = Bullet(angle, self.player2_tank)
