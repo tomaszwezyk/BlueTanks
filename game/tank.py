@@ -3,7 +3,9 @@ import time
 import uuid
 
 class Tank:
-    def __init__(self, x, y):
+    def __init__(self, x, y, ai=None):
+        # ... (rest of the constructor code)
+        self.ai = ai
         self.x = x
         self.y = y
         self.width = 100
@@ -58,6 +60,11 @@ class Tank:
 
     def update(self, terrain):
         self.update_cannon_hotness()
+
+        if self.ai:
+            bullet = self.ai.update()
+            if bullet:
+                return bullet
         
 		# Apply gravity
         self.speed += self.gravity
