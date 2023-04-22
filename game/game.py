@@ -2,9 +2,11 @@ import os
 import pygame
 import socket
 import pickle
+import random
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
+from game.blow import BlowEffect
 
 background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg"))
 
@@ -17,6 +19,7 @@ class Game:
         self.height = height
         self.clock = pygame_instance.time.Clock()
         self.bullets = []
+        self.blow_effects = []
         self.tanks = [
             Tank(50, 350),
             Tank(200, 350),
@@ -69,14 +72,19 @@ class Game:
             if not bullet_hit_tank and not bullet.update(self.terrain):
                 new_bullets.append(bullet)
             else:
-                if self.join_game:
-                    data = {
-                        "bullet_x": bullet.x,
-                        "bullet_y": bullet.y,
-                        "bullet_direction": bullet.direction,
-                        "bullet_owner_id": bullet.owner_tank.id
-                    }
-                    self.client_socket.send(pickle.dumps(data))
+                if bullet_hit_tank:
+                    blow_effect_x = tank.x + tank.width / 2 
+                    blow_effect_y = tank.y + tank.height / 2
+                    blow_effect = BlowEffect(blow_effect_x, blow_effect_y)
+                    self.blow_effects.append(blow_effect)
+                    if self.join_game:
+                        data = {
+                            "bullet_x": bullet.x,
+                            "bullet_y": bullet.y,
+                            "bullet_direction": bullet.direction,
+                            "bullet_owner_id": bullet.owner_tank.id
+                        }
+                        self.client_socket.send(pickle.dumps(data))
         self.bullets = new_bullets
 
     def draw(self):
@@ -86,6 +94,8 @@ class Game:
             tank.draw(self.game_display)
         for bullet in self.bullets:
             bullet.draw(self.game_display)
+        for blow_effect in self.blow_effects:
+            blow_effect.draw(self.game_display)
         
         self.draw_cannon_hotness()  # Add this line to draw the hotness bar
 
@@ -122,6 +132,13 @@ class Game:
             game_exit = self.handle_events()
             self.update()
             self.draw()
+
+            new_blow_effects = []
+            for blow_effect in self.blow_effects:
+                if not blow_effect.update():
+                    new_blow_effects.append(blow_effect)
+            self.blow_effects = new_blow_effects
+
             self.clock.tick(60)  # Limit frame rate to 60 FPS
 
             if self.join_game:
