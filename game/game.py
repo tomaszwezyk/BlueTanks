@@ -47,24 +47,24 @@ class Game:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.server_ip, 1234))
 
+    def handle_shooting(self, tank, shoot_keys):
+        for key in shoot_keys:
+            if self.pygame_instance.key.get_pressed()[key]:
+                if tank.shoot():
+                    angle = 45 if tank.direction == 1 else 135
+                    bullet = Bullet(angle, tank)
+                    self.bullets.append(bullet)
+
     def handle_events(self):
         for event in self.pygame_instance.event.get():
             if event.type == self.pygame_instance.QUIT:
                 return True
             if event.type == self.pygame_instance.KEYDOWN:
                 # Player1 shoot with LCTRL or LSHIFT
-                if event.key == self.pygame_instance.K_LCTRL or event.key == self.pygame_instance.K_LSHIFT:
-                    if self.player_tank.shoot():
-                        angle = 45 if self.player_tank.direction == 1 else 135
-                        bullet = Bullet(angle, self.player_tank)
-                        self.bullets.append(bullet)
+                self.handle_shooting(self.player_tank, [self.pygame_instance.K_LCTRL, self.pygame_instance.K_LSHIFT])
 
                 # Player2 shoot with RCTRL or RSHIFT
-                if event.key == self.pygame_instance.K_RCTRL or event.key == self.pygame_instance.K_RSHIFT:
-                    if self.player2_tank.shoot():
-                        angle = 45 if self.player2_tank.direction == 1 else 135
-                        bullet = Bullet(angle, self.player2_tank)
-                        self.bullets.append(bullet)
+                self.handle_shooting(self.player2_tank, [self.pygame_instance.K_RCTRL, self.pygame_instance.K_RSHIFT])
         return False
     
     def update(self):
