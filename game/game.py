@@ -29,6 +29,7 @@ class Game:
             Tank(1000, 350),
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
+        self.player2_tank = self.tanks[1]  # Reference to the player2-controlled tank
         self.join_game = join_game
         self.server_ip = server_ip
         self.client_socket = None
@@ -45,21 +46,41 @@ class Game:
             if event.type == self.pygame_instance.QUIT:
                 return True
             if event.type == self.pygame_instance.KEYDOWN:
+                # Player1 shoot with LCTRL
                 if event.key == self.pygame_instance.K_LCTRL:
                     if self.player_tank.shoot():
                         angle = 45 if self.player_tank.direction == 1 else 135
                         bullet = Bullet(angle, self.player_tank)
                         self.bullets.append(bullet)
+
+                # Player2 shoot with RCTRL
+                if event.key == self.pygame_instance.K_RCTRL:
+                    if self.player2_tank.shoot():
+                        angle = 45 if self.player2_tank.direction == 1 else 135
+                        bullet = Bullet(angle, self.player2_tank)
+                        self.bullets.append(bullet)
         return False
     
     def update(self):
         keys = self.pygame_instance.key.get_pressed()
-        if keys[self.pygame_instance.K_LEFT]:
+
+        # Player1 controls
+        if keys[self.pygame_instance.K_a]:
             self.player_tank.move_left()
-        if keys[self.pygame_instance.K_RIGHT]:
+        if keys[self.pygame_instance.K_d]:
             self.player_tank.move_right()
-        if keys[self.pygame_instance.K_SPACE]:
+        if keys[self.pygame_instance.K_w]:
             self.player_tank.jump()
+
+        # Player2 controls
+        if keys[self.pygame_instance.K_LEFT]:
+            self.player2_tank.move_left()
+        if keys[self.pygame_instance.K_RIGHT]:
+            self.player2_tank.move_right()
+        if keys[self.pygame_instance.K_UP]:
+            self.player2_tank.jump()
+
+
         for tank in self.tanks:
             tank.update(self.terrain)
 
@@ -99,36 +120,55 @@ class Game:
             shake_points.append((shake_x, shake_y))
         return shake_points
 
-    def draw(self):
+    def draw_player(self, player_tank, drawing_area):
         # Calculate the horizontal offset
-        offset_x = self.player_tank.x - self.width // 2
-        offset_y = 0  # For now, we keep the vertical offset as 0
+        offset_x = player_tank.x - self.width // 2
+
+        # Calculate the vertical offset
+        offset_y = player_tank.y - drawing_area.get_height() // 2
+
+        # Clip the horizontal and vertical offsets to the limits of the terrain
+        offset_x = max(min(offset_x, self.terrain.width - self.width), 0)
+        #offset_y = max(min(offset_y, self.terrain.height - drawing_area.get_height()), 0)
 
         if self.screen_shake_points:
             shake_x, shake_y = self.screen_shake_points.pop(0)
             offset_x += shake_x
             offset_y += shake_y
 
-        # Clip the horizontal offset to the limits of the terrain
-        offset_x = max(min(offset_x, self.terrain.width - self.width), 0)
-
-        self.game_display.blit(background_image, (0, 0))
-        self.terrain.draw(self.game_display, (0, 255, 0), offset_x, offset_y)
+        drawing_area.blit(background_image, (0, 0))
+        self.terrain.draw(drawing_area, (0, 255, 0), offset_x, offset_y)
         for tank in self.tanks:
-            tank.draw(self.game_display, offset_x, offset_y)
+            tank.draw(drawing_area, offset_x, offset_y)
         for bullet in self.bullets:
-            bullet.draw(self.game_display, offset_x, offset_y)
+            bullet.draw(drawing_area, offset_x, offset_y)
         for blow_effect in self.blow_effects:
-            blow_effect.draw(self.game_display, offset_x, offset_y)
+            blow_effect.draw(drawing_area, offset_x, offset_y)
 
-        self.draw_cannon_hotness()  # Add this line to draw the hotness bar
+
+    def draw(self):
+        # Create surfaces for each player's view
+        player1_view = pygame.Surface((self.width, self.height // 2))
+        player2_view = pygame.Surface((self.width, self.height // 2))
+
+        # Draw each player's view
+        self.draw_player(self.player_tank, player1_view)
+        self.draw_player(self.player2_tank, player2_view)
+
+        # Render the views on the main game display
+        self.game_display.blit(player1_view, (0, 0))
+        self.game_display.blit(player2_view, (0, self.height // 2))
+
+        # Draw the cannon hotness for both players
+        self.draw_cannon_hotness(self.player_tank, (10, 10))
+        self.draw_cannon_hotness(self.player2_tank, (10, self.height // 2 + 10))
 
         self.pygame_instance.display.update()
 
-    def draw_cannon_hotness(self):
+    def draw_cannon_hotness(self, player_tank, position):
         max_bar_width = 200
         bar_height = 20
-        hotness_percentage = min(self.player_tank.cannon_hotness / self.player_tank.max_hotness, 1)
+        hotness_percentage = min(player_tank.cannon_hotness / player_tank.max_hotness, 1)
         bar_width = int(max_bar_width * hotness_percentage)
 
         # Draw the background of the hotness bar
@@ -148,7 +188,7 @@ class Game:
         font = pygame.font.Font(None, 24)
         text_color = (0, 0, 0)
         text = font.render(f"Hotness: {self.player_tank.cannon_hotness:.0f}/{self.player_tank.max_hotness}", True, text_color)
-        self.game_display.blit(text, (10 + max_bar_width + 10, 10))
+        self.game_display.blit(text, (position[0] + max_bar_width + 10, position[1]))
 
     def run(self):
         game_exit = False
