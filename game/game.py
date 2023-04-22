@@ -2,6 +2,7 @@ import os
 import pygame
 import socket
 import pickle
+import random
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
@@ -13,6 +14,7 @@ class Game:
         self.pygame_instance = pygame_instance
         self.terrain = Terrain(width * 20, height)
         self.width = width
+        self.screen_shake_points = []
         self.game_display = pygame_instance.display.set_mode((width, height))
         self.height = height
         self.clock = pygame_instance.time.Clock()
@@ -66,9 +68,12 @@ class Game:
                     self.tanks.remove(tank)
                     bullet_hit_tank = True
                     break
+
             if not bullet_hit_tank and not bullet.update(self.terrain):
                 new_bullets.append(bullet)
             else:
+                if bullet_hit_tank:
+                    self.screen_shake_points = self.generate_screen_shake(30, 5)  # 60 frames (1 second) duration, 5 pixels intensity
                 if self.join_game:
                     data = {
                         "bullet_x": bullet.x,
@@ -79,10 +84,23 @@ class Game:
                     self.client_socket.send(pickle.dumps(data))
         self.bullets = new_bullets
 
+    def generate_screen_shake(self, duration, intensity):
+        shake_points = []
+        for _ in range(duration):
+            shake_x = random.randint(-intensity, intensity)
+            shake_y = random.randint(-intensity, intensity)
+            shake_points.append((shake_x, shake_y))
+        return shake_points
+
     def draw(self):
         # Calculate the horizontal offset
         offset_x = self.player_tank.x - self.width // 2
         offset_y = 0  # For now, we keep the vertical offset as 0
+
+        if self.screen_shake_points:
+            shake_x, shake_y = self.screen_shake_points.pop(0)
+            offset_x += shake_x
+            offset_y += shake_y
 
         # Clip the horizontal offset to the limits of the terrain
         offset_x = max(min(offset_x, self.terrain.width - self.width), 0)
