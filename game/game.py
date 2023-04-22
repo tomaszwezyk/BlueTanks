@@ -9,6 +9,8 @@ from game.terrain import Terrain
 from game.bullet import Bullet
 from game.blow import BlowEffect
 
+from pygame import mixer
+
 background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg"))
 
 class Game:
@@ -29,6 +31,10 @@ class Game:
             Tank(1000, 350),
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
+
+        mixer.init()
+        self.blow_sound = mixer.Sound(os.path.join("assets", "blow.wav"))
+
         self.join_game = join_game
         self.server_ip = server_ip
         self.client_socket = None
@@ -76,6 +82,7 @@ class Game:
                 new_bullets.append(bullet)
             else:
                 if bullet_hit_tank:
+                    self.blow_sound.play()
                     blow_effect_x = tank.x + tank.width / 2 
                     blow_effect_y = tank.y + tank.height / 2
                     blow_effect = BlowEffect(blow_effect_x, blow_effect_y)
