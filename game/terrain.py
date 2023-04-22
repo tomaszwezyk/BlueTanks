@@ -26,8 +26,9 @@ class Terrain:
             last_point = (x, y)
         self.points.append((self.width, self.y))
 
-    def draw(self, game_display, green):
-        pygame.draw.polygon(game_display, green, self.points + [(self.width, self.window_height), (0, self.window_height)]) 
+    def draw(self, game_display, green, offset_x, offset_y):
+        offset_points = [(x - offset_x, y - offset_y) for x, y in self.points]
+        pygame.draw.polygon(game_display, green, offset_points + [(self.width - offset_x, self.window_height - offset_y), (0 - offset_x, self.window_height - offset_y)])
 
     def get_y(self, x):
         for i in range(len(self.points) - 1):

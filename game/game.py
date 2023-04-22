@@ -3,6 +3,7 @@ import pygame
 import socket
 import pickle
 import random
+import random
 from game.tank import Tank
 from game.terrain import Terrain
 from game.bullet import Bullet
@@ -13,18 +14,19 @@ background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg")
 class Game:
     def __init__(self, pygame_instance, width=800, height=600, join_game=False, server_ip=""):
         self.pygame_instance = pygame_instance
-        self.terrain = Terrain(width, height)
+        self.terrain = Terrain(width * 20, height)
         self.width = width
+        self.screen_shake_points = []
         self.game_display = pygame_instance.display.set_mode((width, height))
         self.height = height
         self.clock = pygame_instance.time.Clock()
         self.bullets = []
         self.blow_effects = []
         self.tanks = [
-            Tank(50, 350),
-            Tank(200, 350),
-            Tank(350, 350),
-            Tank(500, 350),
+            Tank(550, 350),
+            Tank(700, 350),
+            Tank(950, 350),
+            Tank(1000, 350),
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
         self.join_game = join_game
@@ -69,6 +71,7 @@ class Game:
                     self.tanks.remove(tank)
                     bullet_hit_tank = True
                     break
+
             if not bullet_hit_tank and not bullet.update(self.terrain):
                 new_bullets.append(bullet)
             else:
@@ -77,7 +80,9 @@ class Game:
                     blow_effect_y = tank.y + tank.height / 2
                     blow_effect = BlowEffect(blow_effect_x, blow_effect_y)
                     self.blow_effects.append(blow_effect)
-                    if self.join_game:
+                    if bullet_hit_tank:
+                    self.screen_shake_points = self.generate_screen_shake(30, 5)  # 60 frames (1 second) duration, 5 pixels intensity
+                if self.join_game:
                         data = {
                             "bullet_x": bullet.x,
                             "bullet_y": bullet.y,
@@ -87,16 +92,36 @@ class Game:
                         self.client_socket.send(pickle.dumps(data))
         self.bullets = new_bullets
 
+    def generate_screen_shake(self, duration, intensity):
+        shake_points = []
+        for _ in range(duration):
+            shake_x = random.randint(-intensity, intensity)
+            shake_y = random.randint(-intensity, intensity)
+            shake_points.append((shake_x, shake_y))
+        return shake_points
+
     def draw(self):
+        # Calculate the horizontal offset
+        offset_x = self.player_tank.x - self.width // 2
+        offset_y = 0  # For now, we keep the vertical offset as 0
+
+        if self.screen_shake_points:
+            shake_x, shake_y = self.screen_shake_points.pop(0)
+            offset_x += shake_x
+            offset_y += shake_y
+
+        # Clip the horizontal offset to the limits of the terrain
+        offset_x = max(min(offset_x, self.terrain.width - self.width), 0)
+
         self.game_display.blit(background_image, (0, 0))
-        self.terrain.draw(self.game_display, (0, 255, 0))
+        self.terrain.draw(self.game_display, (0, 255, 0), offset_x, offset_y)
         for tank in self.tanks:
-            tank.draw(self.game_display)
+            tank.draw(self.game_display, offset_x, offset_y)
         for bullet in self.bullets:
-            bullet.draw(self.game_display)
+            bullet.draw(self.game_display, offset_x, offset_y)
         for blow_effect in self.blow_effects:
             blow_effect.draw(self.game_display)
-        
+
         self.draw_cannon_hotness()  # Add this line to draw the hotness bar
 
         self.pygame_instance.display.update()

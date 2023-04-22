@@ -28,8 +28,8 @@ class Bullet:
         return False  # Bullet still in the air
 
 
-    def draw(self, surface):
-        pygame.draw.rect(surface, (255, 255, 255), pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2))
+    def draw(self, surface, offset_x, offset_y):
+        pygame.draw.rect(surface, (255, 255, 255), pygame.Rect(self.x - self.radius - offset_x, self.y - self.radius - offset_y, self.radius * 2, self.radius * 2))
 
     def collides_with(self, tank):
         return (
