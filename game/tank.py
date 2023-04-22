@@ -3,16 +3,20 @@ import time
 import uuid
 
 class Tank:
-    def __init__(self, x, y):
+    def __init__(self, x, y, id = None):
         self.x = x
         self.y = y
+        self.connection = None
         self.width = 100
         self.height = 30
         self.speed = 0.1  # Reduce tank speed to 1/10th of original
         self.gravity = 0.5
         self.direction = 1  # Initialize direction to 1 (right)     
 
-        self.uuid = uuid.uuid4()
+        if id:
+            self.uuid = id
+        else:
+            self.uuid = uuid.uuid4()
         
         self.cannon_hotness = 0
         self.cannon_jammed = False

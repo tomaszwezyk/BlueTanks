@@ -19,10 +19,7 @@ class Game:
         self.clock = pygame_instance.time.Clock()
         self.bullets = []
         self.tanks = [
-            Tank(50, 350),
-            Tank(200, 350),
-            Tank(350, 350),
-            Tank(500, 350),
+            Tank(50, 350)
         ]
         self.player_tank = self.tanks[0]  # Reference to the player-controlled tank
         self.join_game = join_game
@@ -64,7 +61,7 @@ class Game:
         return False
 
     def send_position_update(self, tank):
-        message = f"UPDATE {tank.x} {tank.y}\n"
+        message = f"UPDATE {tank.uuid} {tank.x} {tank.y}\n"
         print("message:"+message)
         if self.join_game:
             self.client_socket.sendall(message.encode())
@@ -146,3 +143,35 @@ class Game:
             self.client_socket.close()
 
         self.pygame_instance.quit()
+
+
+def receive_tank_updates(self):
+    while True:
+        data = self.sock.recv(1024).decode()
+        if not data:
+            break
+
+        # Parse the message
+        message_parts = data.strip().split()
+        message_type = message_parts[0]
+        message_args = message_parts[1:]
+
+        if message_type == "TANKS":
+            # Update an existing tank or create a new one if it doesn't exist
+            tank_id = int(message_args[0])
+            tank_x = float(message_args[1])
+            tank_y = float(message_args[2])
+            with self.lock:
+                if tank_id < len(self.tanks):
+                    self.tanks[tank_id].x = tank_x
+                    self.tanks[tank_id].y = tank_y
+                else:
+                    new_tank = Tank(tank_x, tank_y)
+                    self.tanks.append(new_tank)
+        elif message_type == "QUIT":
+            # Remove the tank from the list
+            tank_id = int(message_args[0])
+            with self.lock:
+                del self.tanks[tank_id]
+
+    self.sock.close()

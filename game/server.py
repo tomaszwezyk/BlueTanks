@@ -1,4 +1,5 @@
 import socket
+import time
 import threading
 import json
 from game.tank import Tank
@@ -16,6 +17,10 @@ class Server:
         self.sock.listen()
         print(f"Server started on {self.host}:{self.port}")
 
+        # Start the thread for sending updates to clients
+        send_updates_thread = threading.Thread(target=self.send_tank_updates)
+        send_updates_thread.start()
+
         # Server loop
         while True:
             # Wait for a new connection
@@ -25,7 +30,8 @@ class Server:
             # Create a new tank and add it to the collection
             with self.lock:
                 tank = Tank(50, 350)
-                self.tanks.append((tank, conn))
+                tank.connection = conn
+                #self.tanks.append(tank)
 
             # Start a new thread to handle updates from the client
             client_thread = threading.Thread(target=self.handle_client, args=(conn, tank))
@@ -38,32 +44,57 @@ class Server:
     def handle_client(self, conn, addr):
         with self.lock:
             tank = Tank(50, 350)
+            tank.connection = conn
             self.tanks.append(tank)
-            client_id = len(self.tanks)
+            #client_id = len(self.tanks)
 
-        print(f"New connection from {addr}, assigned ID {client_id}")
+        print(f"New connection from {addr}, assigned ID {tank.uuid}")
 
         while True:
             data = conn.recv(1024).decode()
             if not data:
-                print(f"Client {client_id} disconnected")
+                print(f"Client {tank.uuid} disconnected")
                 with self.lock:
                     self.tanks.remove(tank)
                 break
 
             if data.startswith("UPDATE"):
                 _, tank_id, x_str, y_str = data.split()
-                tank_id = int(tank_id)
                 x = float(x_str)
                 y = float(y_str)
                 print(f"Updating tank {tank_id} position to ({x}, {y})")
 
+                found = False
                 # Find the tank with the specified ID and update its position
                 with self.lock:
                     for t in self.tanks:
-                        if t.id == tank_id:
+                        if t.uuid == tank_id:
                             t.x = x
                             t.y = y
+                            found = True
                             break
+                    if not found:
+                        self.tanks.append(Tank(x,y,tank_id))
 
         conn.close()
+
+    def send_tank_updates(self):
+        while True:
+            # Build a message containing the positions of all tanks
+            tanks_str = ""
+            with self.lock:
+                for tank in self.tanks:
+                    tanks_str += f"{tank.uuid} {tank.x} {tank.y}\n"
+            message = f"TANKS\n{tanks_str}\n"
+
+            # Send the message to all connected clients
+            for tank in self.tanks:
+                    print("sending TANKS positions to"+ str(tank.uuid))
+                    tank.connection.sendall(message.encode())
+                #except:
+                    # If there is an error receiving the data or updating the position, remove the connection from the list
+                #    self.tanks.remove((tank))
+                #    print("Client disconnected")
+
+            # Wait a bit before sending the next update
+            time.sleep(0.1)
