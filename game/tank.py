@@ -16,7 +16,7 @@ class Tank:
         if id:
             self.uuid = id
         else:
-            self.uuid = uuid.uuid4()
+            self.uuid = str(uuid.uuid4())
         
         self.cannon_hotness = 0
         self.cannon_jammed = False

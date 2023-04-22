@@ -42,20 +42,17 @@ class Server:
         print("Server stopped")
 
     def handle_client(self, conn, addr):
-        with self.lock:
-            tank = Tank(50, 350)
-            tank.connection = conn
-            self.tanks.append(tank)
+        #with self.lock:
+        #    tank = Tank(50, 350)
+        #    tank.connection = conn
+        #    self.tanks.append(tank)
             #client_id = len(self.tanks)
 
-        print(f"New connection from {addr}, assigned ID {tank.uuid}")
+        print(f"New connection from {addr}")
 
         while True:
             data = conn.recv(1024).decode()
             if not data:
-                print(f"Client {tank.uuid} disconnected")
-                with self.lock:
-                    self.tanks.remove(tank)
                 break
 
             if data.startswith("UPDATE"):
@@ -66,15 +63,17 @@ class Server:
 
                 found = False
                 # Find the tank with the specified ID and update its position
-                with self.lock:
-                    for t in self.tanks:
-                        if t.uuid == tank_id:
-                            t.x = x
-                            t.y = y
-                            found = True
-                            break
-                    if not found:
-                        self.tanks.append(Tank(x,y,tank_id))
+                for t in self.tanks:
+                    if str(t.uuid) == tank_id:
+                        t.x = x
+                        t.y = y
+                        found = True
+                        break
+                if not found:
+                    print(f"Adding new Tank: "+str(tank_id))
+                    t = Tank(x,y,tank_id)
+                    t.connection = conn
+                    self.tanks.append(t)
 
         conn.close()
 
@@ -84,12 +83,12 @@ class Server:
             tanks_str = ""
             with self.lock:
                 for tank in self.tanks:
-                    tanks_str += f"{tank.uuid} {tank.x} {tank.y}\n"
+                    tanks_str += f"UPDATE {tank.uuid} {tank.x} {tank.y}\n"
             message = f"TANKS\n{tanks_str}\n"
 
             # Send the message to all connected clients
             for tank in self.tanks:
-                    print("sending TANKS positions to"+ str(tank.uuid))
+                    #print("sending TANKS positions to"+ str(tank.uuid))
                     tank.connection.sendall(message.encode())
                 #except:
                     # If there is an error receiving the data or updating the position, remove the connection from the list

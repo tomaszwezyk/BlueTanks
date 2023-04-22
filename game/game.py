@@ -12,7 +12,7 @@ background_image = pygame.image.load(os.path.join("assets", "background-1.jpeg")
 class Game:
     def __init__(self, pygame_instance, width=800, height=600, join_game=False, server_ip=""):
         self.pygame_instance = pygame_instance
-        self.terrain = Terrain(width, height)
+        self.terrain = Terrain(width, height, 1234)
         self.width = width
         self.game_display = pygame_instance.display.set_mode((width, height))
         self.height = height
@@ -32,6 +32,7 @@ class Game:
     def connect_to_server(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.server_ip, 1234))
+        self.send_position_update(self.player_tank)
 
         # Start thread to listen for updates about other tanks
         self.tank_updates_thread = threading.Thread(target=self.receive_tank_updates)
@@ -39,14 +40,27 @@ class Game:
 
     def receive_tank_updates(self):
         while True:
-            data = self.client_socket.recv(1024)
+            data = self.client_socket.recv(1024).decode()
             if not data:
                 break
-            messages = data.decode().split('\n')
-            for message in messages:
-                if message.startswith("UPDATE"):
-                    _, tank_id, x, y = message.split()
-                    # TODO: Update tank position based on received data
+            if data.startswith("TANKS"):
+                messages = data.split('\n')
+                for message in messages:
+                    if message.startswith("UPDATE"):
+                        _, tank_id, x, y = message.split()
+                        found = False
+                        # Find the tank with the specified ID and update its position
+                        for t in self.tanks:
+                            if str(t.uuid) == tank_id:
+                                t.x = float(x)
+                                t.y = float(y)
+                                found = True
+                                break
+                        if not found:
+                            print(f"Adding new Tank: " + str(tank_id))
+                            t = Tank(float(x), float(y), tank_id)
+                            self.tanks.append(t)
+
 
     def handle_events(self):
         for event in self.pygame_instance.event.get():

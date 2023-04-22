@@ -2,15 +2,16 @@ import pygame
 import random
 
 class Terrain:
-    def __init__(self, window_width, window_height, max_slope=0.35, segment_length=40):
+    def __init__(self, window_width, window_height, seed=None, max_slope=0.35, segment_length=40):
         self.x = 0
         self.y = 450
         self.width = window_width
         self.height = window_height - self.y
-        self.window_height = window_height 
+        self.window_height = window_height
 
         # Generate terrain
         self.points = []
+        random.seed(seed)  # Set the seed
         initial_y = random.randint(self.y - self.height, self.y)  # Random initial y value
         last_point = (0, initial_y)  # Update the last_point with the random initial y value
 
