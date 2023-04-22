@@ -10,8 +10,8 @@ clock = pygame.time.Clock()
 font = pygame.font.Font(None, 24)  # Choose a font and size
 
 # Set up the game window
-window_width = 800
-window_height = 600
+window_width = 1024
+window_height = 768
 game_display = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Tank Game")
 
@@ -25,7 +25,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 green = (0, 255, 0)
 
-menu = Menu(pygame)
+menu = Menu(pygame, window_width, window_height)
 menu.run()
 
 

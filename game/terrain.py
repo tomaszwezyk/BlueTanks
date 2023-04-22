@@ -8,6 +8,8 @@ class Terrain:
         self.width = window_width
         self.height = window_height - self.y
         self.window_height = window_height 
+        self.texture = pygame.image.load("assets/grass.png")
+        self.texture = pygame.transform.scale(self.texture, (40, 40))  # Scale the texture to the desired size
 
         # Generate terrain
         self.points = []
@@ -27,7 +29,29 @@ class Terrain:
         self.points.append((self.width, self.y))
 
     def draw(self, game_display, green, offset_x, offset_y):
+        offset_y -= 40
         offset_points = [(x - offset_x, y - offset_y) for x, y in self.points]
+
+        # Render the terrain texture
+        for i in range(len(offset_points) - 1):
+            x1, y1 = offset_points[i]
+            x2, y2 = offset_points[i + 1]
+            segment_length = int(((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5)
+
+            # Calculate the number of times the texture should be repeated
+            repeat_count = int(segment_length / self.texture.get_width()) + 1
+
+            # Calculate the angle of the terrain segment
+            angle = -pygame.math.Vector2(x2 - x1, y2 - y1).angle_to((1, 0))
+
+            # Render the texture repeatedly along the terrain segment
+            for j in range(repeat_count):
+                x = x1 + j * self.texture.get_width()
+                y = y1 + (y2 - y1) * (j * self.texture.get_width()) / (x2 - x1)
+                rotated_texture = pygame.transform.rotate(self.texture, angle)
+                game_display.blit(rotated_texture, (x - rotated_texture.get_width() / 2, y - rotated_texture.get_height() / 2))
+
+        # Draw the polygon for the lower part of the terrain
         pygame.draw.polygon(game_display, green, offset_points + [(self.width - offset_x, self.window_height - offset_y), (0 - offset_x, self.window_height - offset_y)])
 
     def get_y(self, x):
