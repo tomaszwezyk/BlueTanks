@@ -16,9 +16,13 @@ Before running the game, make sure you have Python 3.6 or newer installed on you
 
 ```bash
 pip install pygame
-
+```
 
 ## Running the game
+
+```bash
+pip python3 main.py
+```
 
 After installing the required dependencies, navigate to the project folder and run the following command:
 
